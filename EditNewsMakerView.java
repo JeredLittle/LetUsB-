@@ -1,9 +1,12 @@
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -62,6 +65,39 @@ public class EditNewsMakerView extends JPanel implements Serializable, ActionLis
 	 * @param newsDataBaseModel The model for the data base.
 	 */
 	public EditNewsMakerView(NewsMakerModel newsMakerModel,  NewsDataBaseModel newsDataBaseModel) {
+		this.newsDataBaseModel = newsDataBaseModel;
+		
+		//list of stories
+		jlNewsStoryList = new JList<String>();
+		jspNewsStoryList = new JScrollPane();
+		jpNewsStoryList = new JPanel();
+		jspNewsStoryList.add(jlNewsStoryList);
+		
+		jpNewsStoryList.add(jspNewsStoryList);
+		
+		//name & remove from story button.
+		jtfName = new JTextField(newsMakerModel.getName());
+		jbtRemoveFromStory = new JButton("Remove From Selected Story");
+		jlbName = new JLabel(newsMakerModel.getName());
+		
+		jplName = new JPanel(new GridLayout(2,2));
+		jplName.add(jlbName);
+		jplName.add(new JLabel());
+		jplName.add(jtfName);
+		jplName.add(jbtRemoveFromStory);
+		
+		//add to the panel
+		this.setLayout(new BorderLayout());
+		this.add(jpNewsStoryList, BorderLayout.NORTH);
+		this.add(jplName,BorderLayout.SOUTH);
+		
+		populateNewsStoryJList();
+		
+		JFrame frame = new JFrame("Edit Newsmaker");
+		frame.add(this); 
+		frame.setSize(500, 300);
+		frame.setVisible(true);
+		
 		
 	}
 	/**
@@ -79,7 +115,7 @@ public class EditNewsMakerView extends JPanel implements Serializable, ActionLis
 	 * </P>
 	 */
 	private void populateNewsStoryJList() {
-			
+			System.out.println("TODO: FIX THE POPULATENEWSSTORYLIST METHOD IN EDITNEWSMAKERVIEW!!!!!!!");
 	}
 
 	/**
@@ -92,6 +128,5 @@ public class EditNewsMakerView extends JPanel implements Serializable, ActionLis
 		// TODO Auto-generated method stub
 		
 	}
-
-
+	
 }
