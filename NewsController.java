@@ -1,12 +1,21 @@
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /**
  * Project 4, CS 2334, Section 010, April 23, 2017
@@ -26,6 +35,7 @@ import javax.swing.JOptionPane;
 //Jered Little created the stub code for this class.
 public class NewsController {
 
+	
 	private NewsDataBaseModel newsDataBaseModel;
 	private SelectionView selectionView;
 	private EditNewsMakerView editNewsMakerView;
@@ -56,6 +66,7 @@ public class NewsController {
 	 */
 	public void setNewsDataBaseModel(NewsDataBaseModel newsDataBaseModel) {
 		this.newsDataBaseModel = newsDataBaseModel;
+		System.out.println("Success! NewsDataBaseModel has been set! Good work!");
 	}
 	/**
 	 * <P>
@@ -73,23 +84,30 @@ public class NewsController {
 	}
 	/**
 	 * <P>
-	 * This method loads all the news data.
+	 * This method loads all the news data in BINARY FORMAT.
 	 * </P>
+	 * @throws IOException 
+	 * @throws ClassNotFoundException 
 	 */
-	public void loadNewsData() {
+	public void loadNewsData() throws ClassNotFoundException, IOException {
 		JFileChooser fc = new JFileChooser();
 		fc.setDialogTitle("Open Binary Data File");
 		int returnValue = fc.showOpenDialog(selectionView);
 		if(returnValue == JFileChooser.APPROVE_OPTION) {
 			System.out.println("Load Binary Data File");
 			//TODO load data in
-			fc.getSelectedFile();
+			String outputFileName = fc.getSelectedFile().getPath();
+			FileInputStream fileInputStream = new FileInputStream(outputFileName);
+			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+			newsDataBaseModel = (NewsDataBaseModel) objectInputStream.readObject();
+			objectInputStream.close();
+			
 		}
 	}
 	/**
 	 * <P>
 	 * This method saves all the news data.
-	 * </P>
+	 * </P> 
 	 */
 	private void saveNewsData() {
 		//No data is in the model, so we cant save.
@@ -101,8 +119,6 @@ public class NewsController {
 		int returnValue = fc.showSaveDialog(selectionView);
 		if(returnValue == JFileChooser.APPROVE_OPTION) {
 			System.out.println("Save Binary File");
-			//TODO save data
-			fc.getSelectedFile();
 		}
 	}
 	/**
@@ -121,7 +137,7 @@ public class NewsController {
 		int returnValue = JFileChooser.APPROVE_OPTION;
 		String newsStoryFilePath = "";
 		String answer = "";
-		
+		String path = "";
 		while(returnValue == JFileChooser.APPROVE_OPTION) {
 			//input dialog question
 			returnValue = fc.showOpenDialog(selectionView);
@@ -135,11 +151,9 @@ public class NewsController {
 			
 			//create the maps based on user answer
 			if(answer.equalsIgnoreCase("source codes")) {
-				//TODO get path will work??
 				try {
-					newsDataBaseModel.setNewsSourceMap(CodeFileProcessor.readCodeFile(fc.getSelectedFile().getPath()));
-					System.out.println("SOURCES");
-					for(String k : newsDataBaseModel.getNewsSourceMap().keySet()) System.out.println(k + " | " + newsDataBaseModel.getNewsSourceMap().get(k));
+					path = fc.getSelectedFile().getPath();
+					newsDataBaseModel.setNewsSourceMap(CodeFileProcessor.readCodeFile(path));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -148,11 +162,9 @@ public class NewsController {
 			if(answer.equalsIgnoreCase("topic codes")) {
 
 				try {
-					newsDataBaseModel.setNewsTopicMap(CodeFileProcessor.readCodeFile(fc.getSelectedFile().getPath()));
-					System.out.println("TOPICS");
-					for(String k : newsDataBaseModel.getNewsTopicMap().keySet()) System.out.println(k + " | " + newsDataBaseModel.getNewsTopicMap().get(k));
+					path = fc.getSelectedFile().getPath();
+					newsDataBaseModel.setNewsTopicMap(CodeFileProcessor.readCodeFile(path));
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -160,11 +172,9 @@ public class NewsController {
 			if(answer.equalsIgnoreCase("subject codes")) {
 
 				try {
-					newsDataBaseModel.setNewsSubjectMap(CodeFileProcessor.readCodeFile(fc.getSelectedFile().getPath()));
-					System.out.println("SUBJECTS");
-					for(String k : newsDataBaseModel.getNewsSubjectMap().keySet()) System.out.println(k + " | " + newsDataBaseModel.getNewsSubjectMap().get(k));
+					path = fc.getSelectedFile().getPath();
+					newsDataBaseModel.setNewsSubjectMap(CodeFileProcessor.readCodeFile(path));
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -179,11 +189,9 @@ public class NewsController {
 						+ "Does this file contain source codes, topic codes, subject codes, or news stories?",fc.getSelectedFile().getName(),
 							JOptionPane.WARNING_MESSAGE);
 				if(answer.equalsIgnoreCase("source codes")) {
-					//TODO get path will work??
+
 					try {
 						newsDataBaseModel.setNewsSourceMap(CodeFileProcessor.readCodeFile(fc.getSelectedFile().getPath()));
-						System.out.println("SOURCES");
-						for(String k : newsDataBaseModel.getNewsSourceMap().keySet()) System.out.println(k + " | " + newsDataBaseModel.getNewsSourceMap().get(k));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -193,10 +201,8 @@ public class NewsController {
 
 					try {
 						newsDataBaseModel.setNewsTopicMap(CodeFileProcessor.readCodeFile(fc.getSelectedFile().getPath()));
-						System.out.println("TOPICS");
-						for(String k : newsDataBaseModel.getNewsTopicMap().keySet()) System.out.println(k + " | " + newsDataBaseModel.getNewsTopicMap().get(k));
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
+
 						e.printStackTrace();
 					}
 
@@ -205,10 +211,7 @@ public class NewsController {
 
 					try {
 						newsDataBaseModel.setNewsSubjectMap(CodeFileProcessor.readCodeFile(fc.getSelectedFile().getPath()));
-						System.out.println("SUBJECTS");
-						for(String k : newsDataBaseModel.getNewsSubjectMap().keySet()) System.out.println(k + " | " + newsDataBaseModel.getNewsSubjectMap().get(k));
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
@@ -220,7 +223,6 @@ public class NewsController {
 			 setNewsDataBaseModel(NoozFileProcessor.readNoozFile(newsStoryFilePath, 
 					newsDataBaseModel.getNewsSourceMap(), newsDataBaseModel.getNewsTopicMap(), newsDataBaseModel.getNewsSubjectMap()));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -251,6 +253,36 @@ public class NewsController {
 	 * </P>
 	 */
 	private void addNewsMaker() {
+		String input = "";
+		
+		input = JOptionPane.showInputDialog(selectionView,"Enter News Maker Name: ",
+			"Add News Maker",JOptionPane.INFORMATION_MESSAGE);
+		
+
+		//if user didnt click cancel
+		if(!input.equals("")) {
+			//if the data base has the newsmaker already
+			if(newsDataBaseModel.containsNewsMakerModel(new NewsMakerModel(input))) {
+				//ask to replace
+				int replaceNewsMaker = JOptionPane.showConfirmDialog(selectionView,"Replace News Maker: " + input,
+						"Replace News Maker",JOptionPane.YES_NO_CANCEL_OPTION);
+				//if they pressed yes
+				if(replaceNewsMaker == JOptionPane.YES_OPTION) {
+					//replace
+					//TODO replace
+					System.out.println("Testing: We will now REPLACE the newsmakermodel.... Uncomment line below this when the newsdatabasemodel is finished.");
+					//newsDataBaseModel.replaceNewsMakerModel(new NewsMakerModel(input));
+				}
+			}
+			//otherwise, if the database doesnt contain the news maker
+			else {
+				//add him
+				//TODO add (uncomment line below)
+				System.out.println("Testing: We will now add the newsmakermodel.... Uncomment line below this when the newsdatabasemodel is finished.");
+				//newsDataBaseModel.addNewsMakerModel(new NewsMakerModel(input));
+			}	
+		} // end if
+		
 		
 	}
 	/**
@@ -260,6 +292,14 @@ public class NewsController {
 	 * 
 	 */
 	private void editNewsMakers() {
+		//create the edit news maker view based on the first news maker selected TODO, when you get the selection view loaded with data, use this line and
+		//delete the line at the bottom
+		//editNewsMakerView = new EditNewsMakerView(newsDataBaseModel.getNewsMakerListModel().get(selectionView.getSelectedNewsMakers()[0]),newsDataBaseModel);
+		editNewsMakerView = new EditNewsMakerView(new NewsMakerModel(),newsDataBaseModel);
+		editNewsMakerView.jtfName.addActionListener(new EditNewsMakerNameListener());
+		//TODO Test delete
+		editNewsMakerView.jbtRemoveFromStory.addActionListener(new RemoveNewsMakerFromNewsStoriesListener());
+		
 		
 	}
 	/**
@@ -284,7 +324,6 @@ public class NewsController {
 	 * </P>
 	 */
 	private void addNewsStory() {
-		
 	}
 	/**
 	 * <P>
@@ -358,10 +397,19 @@ public class NewsController {
 				exportNewsStories();
 			}
 			else if(eventSourceText.equals("Save")) {
-				saveNewsData();
+					saveNewsData();
+
 			}
 			else if(eventSourceText.equals("Load")) {
-				loadNewsData();
+				
+				try {
+					loadNewsData();
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
 			}
 			
 		}
@@ -375,7 +423,7 @@ public class NewsController {
 	 * </P>
 	 *
 	 */
-	class NewsMakerMenuListener implements ActionListener {
+	public class NewsMakerMenuListener implements ActionListener {
 
 		/**
 		 * This method allows decides what actions should be taken when an event occurs.
@@ -384,11 +432,11 @@ public class NewsController {
 		public void actionPerformed(ActionEvent e) {
 			String eventSourceText = ((JMenuItem) e.getSource()).getText();
 			if(eventSourceText.equals("Add Newsmaker")) {
-				System.out.println("Add newsmaker");
+				addNewsMaker();
 				
 			}
 			else if(eventSourceText.equals("Edit Newsmaker")) {
-				System.out.println("edit newsmaker");
+				editNewsMakers();
 			}
 			else if(eventSourceText.equals("Delete Newsmaker")) {
 				System.out.println("delete newsmaker");
@@ -396,8 +444,6 @@ public class NewsController {
 			else if(eventSourceText.equals("Delete Newsmaker List")) {
 				System.out.println("delete newsmaker list");
 			}
-			// TODO Auto-generated method stub
-			
 		}
 		
 	}
@@ -431,8 +477,6 @@ public class NewsController {
 			else if(eventSourceText.equals("Delete All News Stories")) {
 				System.out.println("Delete All News Stories");
 			}
-			// TODO Auto-generated method stub
-			//create if statements to determine what component at the specified menu location has fired the event.
 			
 		}
 		
@@ -444,7 +488,7 @@ public class NewsController {
 	 * </P>
 	 *
 	 */
-	class DisplayMenuListener implements ActionListener {
+	public class DisplayMenuListener implements ActionListener {
 
 		/**
 		 * This method allows decides what actions should be taken when an event occurs.
@@ -458,7 +502,6 @@ public class NewsController {
 			else if(eventSourceText.equals("Pie Chart")) {
 				System.out.println("Pie Chart");
 			}
-			// TODO Auto-generated method stub
 			
 		}
 		
@@ -470,15 +513,14 @@ public class NewsController {
 	 * </P>
 	 *
 	 */
-	class EditNewsMakerNameListener implements ActionListener {
+	public class EditNewsMakerNameListener implements ActionListener {
 
 		/**
 		 * This method allows decides what actions should be taken when an event occurs.
 		 */
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+			System.out.println("change the newsmakers name to: " +editNewsMakerView.jtfName);
 		}
 		
 	}
@@ -489,15 +531,16 @@ public class NewsController {
 	 * </P>
 	 *
 	 */
-	class RemoveNewsMakerFromNewsStoriesListener implements ActionListener {
+	public class RemoveNewsMakerFromNewsStoriesListener implements ActionListener {
 
 		/**
 		 * This method allows decides what actions should be taken when an event occurs.
 		 */
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			// TODO Auto-generated method stub
-			
+		public void actionPerformed(ActionEvent e) {
+			//TODO add code to do stuff
+			System.out.println("User click remove from story. Remove the newsmaker from the selected story!!! (using the variables in editnewsmakerview"
+					+ " and the newsdatabasemodel variable.");
 		}
 		
 	}
@@ -508,7 +551,7 @@ public class NewsController {
 	 * </P>
 	 *
 	 */
-	class  AddEditNewsStoryListener implements ActionListener{
+	public class  AddEditNewsStoryListener implements ActionListener{
 
 		/**
 		 * This method allows decides what actions should be taken when an event occurs.
@@ -527,7 +570,7 @@ public class NewsController {
 	 * </P>
 	 *
 	 */
-	class MediaTypeSelectionListener implements ActionListener {
+	public class MediaTypeSelectionListener implements ActionListener {
 
 		/**
 		 * This method allows decides what actions should be taken when an event occurs.
